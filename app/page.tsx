@@ -430,7 +430,7 @@ export default function FitnessApp() {
       {/* Exercise Suggestions Section */}
       <section
         id="suggestions"
-        className="p-6 bg-white rounded-2xl shadow-lg mb-8 transition-all duration-200 ease-in-out hover:shadow-xl"
+        className="p-6 bg-white rounded-2xl shadow-lg mb-8 transition-all duration-200 ease-in-out hover:shadow-xl mt-6"
       >
         <h2 className="text-2xl font-semibold text-gray-900 mb-5">
           Personalized Exercise Suggestions
