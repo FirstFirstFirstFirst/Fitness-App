@@ -36,9 +36,8 @@ type Goal = {
 export default function FitnessApp() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [workouts, setWorkouts] = useState<Workout[]>([]);
-  const [notifications, setNotifications] = useState<string[]>([
-    "Reminder: Log your workout!",
-  ]);
+  const [notifications] = useState<string[]>(["Reminder: Log your workout!"]);
+
   const [goals, setGoals] = useState<Goal[]>([
     { id: 1, name: "Run 10 miles", target: 10, progress: 0 },
   ]);
