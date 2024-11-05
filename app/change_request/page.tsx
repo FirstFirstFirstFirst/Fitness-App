@@ -12,6 +12,9 @@ import {
   Time,
   WhitespaceData,
 } from "lightweight-charts";
+import { FaFacebook, FaInstagram, FaTwitter } from "react-icons/fa";
+import Leaderboard from "@/components/leaderboard";
+import ChallengeFeature from "@/components/challengeFeature";
 
 type Profile = {
   age: number | "";
@@ -40,9 +43,28 @@ export default function FitnessApp() {
     height: "",
     goals: "Run 10 miles",
   });
-
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [notifications] = useState<string[]>(["Reminder: Log your workout!"]);
+  const [selectedTab, setSelectedTab] = useState("daily");
+  const [showSummary, setShowSummary] = useState(false);
+  const [showShareOptions, setShowShareOptions] = useState(false);
+  const [shareSuccess, setShareSuccess] = useState(false);
+
+  const displaySummary = () => {
+    setShowSummary(true);
+  };
+
+  const confirmShare = () => {
+    setShowShareOptions(true); // Show social media share options
+  };
+
+  const handleShareSuccess = () => {
+    setShareSuccess(true);
+    setTimeout(() => {
+      setShowShareOptions(false);
+      setShareSuccess(false);
+    }, 2000); // Automatically close after 2 seconds
+  };
 
   const [goals, setGoals] = useState<Goal[]>([
     { id: 1, name: "Run 10 miles", target: 10, progress: 0 },
@@ -74,6 +96,7 @@ export default function FitnessApp() {
     { time: "2023-01-16", value: 6 },
     { time: "2023-01-17", value: 8 },
   ];
+
   useEffect(() => {
     const savedProfile = localStorage.getItem("profile");
     const savedWorkouts = localStorage.getItem("workouts");
@@ -91,7 +114,6 @@ export default function FitnessApp() {
 
         newSeries.setData(initialData);
 
-        // Set chart and series state
         setChart(newChart);
         setSeries(newSeries);
       }
@@ -99,9 +121,11 @@ export default function FitnessApp() {
   }, [chart]);
 
   useEffect(() => {
-    if (profile) localStorage.setItem("profile", JSON.stringify(profile));
-    localStorage.setItem("workouts", JSON.stringify(workouts));
-    localStorage.setItem("goals", JSON.stringify(goals));
+    if (typeof window !== "undefined") {
+      if (profile) localStorage.setItem("profile", JSON.stringify(profile));
+      localStorage.setItem("workouts", JSON.stringify(workouts));
+      localStorage.setItem("goals", JSON.stringify(goals));
+    }
   }, [profile, workouts, goals]);
 
   const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -147,11 +171,16 @@ export default function FitnessApp() {
       )
     );
   };
+  const shareSummary = () => {
+    console.log("Workout summary shared to social media!");
+    alert("Workout summary successfully shared!");
+    setShowSummary(true); // Show the summary component after sharing
+  };
 
   return (
     <div className="container mx-auto p-6 font-sans text-gray-800 max-w-xl">
       {/* Floating Navbar */}
-      <nav className="fixed top-0 left-0 w-full flex justify-between items-center py-4 px-6 bg-white rounded-full shadow-md transition-all duration-200 ease-in-out hover:shadow-lg z-50">
+      <nav className="fixed top-0 left-0 w-full flex justify-between items-center py-4 px-6 bg-white rounded-b-lg shadow-md transition-all duration-200 ease-in-out hover:shadow-lg z-50">
         <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">
           Fitness App
         </h1>
@@ -182,10 +211,8 @@ export default function FitnessApp() {
           </a>
         </div>
       </nav>
-
-      <div className="container mx-auto mt-20 font-sans text-gray-800 max-w-xl"></div>
+      <div className="container mx-auto font-sans text-gray-800 max-w-xl mt-20"></div>
       {/* Notifications */}
-
       <div className="mb-8 p-6 bg-white rounded-2xl shadow-md">
         <h2 className="text-2xl font-semibold text-gray-900 mb-4">
           Notifications
@@ -354,11 +381,55 @@ export default function FitnessApp() {
         <h2 className="text-2xl font-semibold text-gray-900 mb-5">
           Historical Workout Data
         </h2>
+        {/* Tabs for Daily, Weekly, Monthly */}
+        <div className="flex justify-center space-x-4 mb-4">
+          <button
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:outline-none"
+            onClick={() => setSelectedTab("daily")}
+          >
+            Daily
+          </button>
+          <button
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:outline-none"
+            onClick={() => setSelectedTab("weekly")}
+          >
+            Weekly
+          </button>
+          <button
+            className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:outline-none"
+            onClick={() => setSelectedTab("monthly")}
+          >
+            Monthly
+          </button>
+        </div>
+
+        {/* Chart container */}
         <div
           id="workout-chart"
           className="bg-gray-100 rounded-lg shadow-inner w-full h-64 max-h-80 overflow-x-auto"
           style={{ maxWidth: "100%" }}
-        />
+        >
+          {selectedTab === "daily" && (
+            <div>
+              {" "}
+              {/* Placeholder for daily chart */} Daily workout chart goes here.{" "}
+            </div>
+          )}
+          {selectedTab === "weekly" && (
+            <div>
+              {" "}
+              {/* Placeholder for weekly chart */} Weekly workout chart goes
+              here.{" "}
+            </div>
+          )}
+          {selectedTab === "monthly" && (
+            <div>
+              {" "}
+              {/* Placeholder for monthly chart */} Monthly workout chart goes
+              here.{" "}
+            </div>
+          )}
+        </div>
       </section>
 
       {/* Weekly Goal Tracking */}
@@ -469,6 +540,120 @@ export default function FitnessApp() {
           </div>
         </div>
       </section>
+
+      {/* Share Workout Summary Section */}
+      <section
+        id="share-summary"
+        className="mt-8 p-6 bg-white rounded-2xl shadow-lg transition-all duration-200 ease-in-out hover:shadow-xl"
+      >
+        <h2 className="text-2xl font-semibold text-gray-900 mb-4">
+          Share Your Workout Summary
+        </h2>
+        <p className="text-gray-600 mb-4">
+          Review your progress before sharing!
+        </p>
+        <button
+          onClick={displaySummary}
+          className="w-full py-3 bg-[#007AFF] text-white rounded-full font-semibold shadow-md hover:bg-blue-600 transition duration-150 ease-in-out"
+        >
+          Show Summary
+        </button>
+      </section>
+
+      {/* Workout Summary Component */}
+      {showSummary && (
+        <section
+          id="workout-summary"
+          className="mt-6 p-6 bg-gray-50 rounded-2xl shadow-lg transition-all duration-200 ease-in-out"
+        >
+          <h2 className="text-2xl font-semibold text-gray-800 mb-5">
+            Your Workout Summary
+          </h2>
+          <div className="space-y-5">
+            {/* Overall Progress */}
+            <div className="p-5 border border-gray-200 rounded-lg shadow-sm bg-white">
+              <h3 className="text-lg font-medium text-gray-900 mb-1">
+                Overall Progress
+              </h3>
+              <p className="text-gray-600">Total Workouts: 15</p>
+              <p className="text-gray-600">Calories Burned: 3,500 kcal</p>
+              <p className="text-gray-600">Goals Achieved: 2/3</p>
+            </div>
+
+            {/* Workout History */}
+            <div className="p-5 border border-gray-200 rounded-lg shadow-sm bg-white">
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                Workout History
+              </h3>
+              <ul className="list-disc pl-5 space-y-2 text-gray-700">
+                <li>Running: 30 mins, 300 kcal</li>
+                <li>Yoga: 45 mins, 200 kcal</li>
+                <li>Strength Training: 60 mins, 500 kcal</li>
+              </ul>
+            </div>
+
+            {/* Confirm Share Button */}
+            <button
+              onClick={confirmShare}
+              className="w-full py-3 bg-green-500 text-white rounded-full font-semibold shadow-md hover:bg-green-600 transition duration-150 ease-in-out"
+            >
+              Confirm Share
+            </button>
+          </div>
+        </section>
+      )}
+
+      {/* Share Options Popup */}
+      {showShareOptions && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-6 rounded-2xl shadow-lg text-center max-w-xs transition-all duration-200 ease-in-out">
+            {shareSuccess ? (
+              <div>
+                <h2 className="text-lg font-semibold text-green-600">
+                  Share Success!
+                </h2>
+              </div>
+            ) : (
+              <>
+                <h2 className="text-lg font-semibold text-gray-900 mb-5">
+                  Share on Social Media
+                </h2>
+                <div className="flex justify-around space-x-6">
+                  <button
+                    className="text-blue-600"
+                    onClick={handleShareSuccess}
+                  >
+                    <FaFacebook size={30} />
+                    <p className="text-sm mt-2">Facebook</p>
+                  </button>
+                  <button
+                    className="text-pink-500"
+                    onClick={handleShareSuccess}
+                  >
+                    <FaInstagram size={30} />
+                    <p className="text-sm mt-2">Instagram</p>
+                  </button>
+                  <button
+                    className="text-blue-400"
+                    onClick={handleShareSuccess}
+                  >
+                    <FaTwitter size={30} />
+                    <p className="text-sm mt-2">X</p>
+                  </button>
+                </div>
+                <button
+                  onClick={() => setShowShareOptions(false)}
+                  className="mt-6 px-6 py-2 bg-gray-500 text-white rounded-full font-medium hover:bg-gray-600 transition duration-150 ease-in-out"
+                >
+                  Close
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+      <Leaderboard />
+      <ChallengeFeature />
     </div>
   );
 }
