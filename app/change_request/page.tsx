@@ -171,11 +171,6 @@ export default function FitnessApp() {
       )
     );
   };
-  const shareSummary = () => {
-    console.log("Workout summary shared to social media!");
-    alert("Workout summary successfully shared!");
-    setShowSummary(true); // Show the summary component after sharing
-  };
 
   return (
     <div className="container mx-auto p-6 font-sans text-gray-800 max-w-xl">
