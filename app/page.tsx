@@ -1,6 +1,17 @@
 "use client";
 import { useState, useEffect } from "react";
-import { createChart, IChartApi } from "lightweight-charts";
+import {
+  createChart,
+  DeepPartial,
+  IChartApi,
+  ISeriesApi,
+  LineData,
+  LineSeriesOptions,
+  LineStyleOptions,
+  SeriesOptionsCommon,
+  Time,
+  WhitespaceData,
+} from "lightweight-charts";
 
 type Profile = {
   age: number | "";
@@ -32,9 +43,32 @@ export default function FitnessApp() {
     { id: 1, name: "Run 10 miles", target: 10, progress: 0 },
   ]);
   const [chart, setChart] = useState<IChartApi | null>(null);
-  const [series, setSeries] = useState<any>(null);
-  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [series, setSeries] = useState<ISeriesApi<
+    "Line",
+    Time,
+    LineData<Time> | WhitespaceData<Time>,
+    LineSeriesOptions,
+    DeepPartial<LineStyleOptions & SeriesOptionsCommon>
+  > | null>(null);
 
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const initialData = [
+    { time: "2023-01-03", value: 6 },
+    { time: "2023-01-04", value: 8 },
+    { time: "2023-01-05", value: 5 },
+    { time: "2023-01-06", value: 7 },
+    { time: "2023-01-07", value: 6 },
+    { time: "2023-01-08", value: 9 },
+    { time: "2023-01-09", value: 4 },
+    { time: "2023-01-10", value: 7 },
+    { time: "2023-01-11", value: 6 },
+    { time: "2023-01-12", value: 8 },
+    { time: "2023-01-13", value: 5 },
+    { time: "2023-01-14", value: 9 },
+    { time: "2023-01-15", value: 7 },
+    { time: "2023-01-16", value: 6 },
+    { time: "2023-01-17", value: 8 },
+  ];
   useEffect(() => {
     const savedProfile = localStorage.getItem("profile");
     const savedWorkouts = localStorage.getItem("workouts");
@@ -49,23 +83,7 @@ export default function FitnessApp() {
       if (chartElement) {
         const newChart = createChart(chartElement, { width: 600, height: 300 });
         const newSeries = newChart.addLineSeries();
-        const initialData = [
-          { time: "2023-01-03", value: 6 },
-          { time: "2023-01-04", value: 8 },
-          { time: "2023-01-05", value: 5 },
-          { time: "2023-01-06", value: 7 },
-          { time: "2023-01-07", value: 6 },
-          { time: "2023-01-08", value: 9 },
-          { time: "2023-01-09", value: 4 },
-          { time: "2023-01-10", value: 7 },
-          { time: "2023-01-11", value: 6 },
-          { time: "2023-01-12", value: 8 },
-          { time: "2023-01-13", value: 5 },
-          { time: "2023-01-14", value: 9 },
-          { time: "2023-01-15", value: 7 },
-          { time: "2023-01-16", value: 6 },
-          { time: "2023-01-17", value: 8 },
-        ];
+
         newSeries.setData(initialData);
 
         // Set chart and series state
@@ -83,12 +101,13 @@ export default function FitnessApp() {
 
   const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setProfile(
-      (prev) =>
-        ({
-          ...prev,
-          [name]: name === "goals" ? value : value ? Number(value) : "",
-        } as Profile)
+    setProfile((prev) =>
+      prev
+        ? {
+            ...prev,
+            [name]: name === "goals" ? value : value ? Number(value) : "",
+          }
+        : null
     );
   };
 
